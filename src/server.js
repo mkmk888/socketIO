@@ -48,34 +48,23 @@ function publicRooms() {
     return publicRooms;
 }
 
-// function countRoom(roomName) {
-//     if (io.sockets.adapter.rooms.get(roomName)) {
-//         return io.sockets.adapter.rooms.get(roomName).size
-//     } else {
-//         return undefined;
-//     }
-// }
+function countRoom(roomName) {
+    if (io.sockets.adapter.rooms.get(roomName)) {
+        return io.sockets.adapter.rooms.get(roomName).size
+    } else {
+        return undefined;
+    }
+}
 
 io.on("connection", (socket) => {
     socket["nickname"] = "Anonymous";
-    io.sockets.emit("room_change", publicRooms());
+    io.sockets.emit("room_change",0, publicRooms());
     // 연결시 룸 리스트 새로고침 - 실시간 리스트 새로고침
     socket.on("enter_room", (roomName) => {
         socket.join(roomName);
         socket.to(roomName).emit("welcome", socket.nickname); // 본인제외
-        io.sockets.emit("room_change", publicRooms());
+        io.sockets.emit("room_change", countRoom(roomName), publicRooms());
     })
-    socket.on("offer",(offer, roomName) => {
-        socket.to(roomName).emit("offer",offer);
-    });
-    socket.on("answer",(answer, roomName) => {
-        socket.to(roomName).emit("answer", answer);
-    })
-    socket.on("ice",(ice, roomName) => {
-        socket.to(roomName).emit("ice", ice);
-    })
-
-
     socket.on("disconnecting", () => {
         socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname));
     })
