@@ -11,6 +11,7 @@ const cameraSelect = document.querySelector("#cameras");
 room.hidden = true;
 
 let roomName;
+let roomCount = 0;
 let myStream;
 let mute = false;
 let cameraOff = false;
@@ -151,7 +152,7 @@ cameraSelect.addEventListener("input",handleCameraChange);
 
 
 
-socket.on("welcome",async (nickname, newCount) => {
+socket.on("welcome",async (nickname) => {
     addMessage(`${nickname} joined!`);
     const offer = await myPeerConnection.createOffer();
     myPeerConnection.setLocalDescription(offer);
@@ -159,7 +160,7 @@ socket.on("welcome",async (nickname, newCount) => {
     console.log("sent offer");
 });
 
-socket.on("bye",(nickname, newCount) => {
+socket.on("bye",(nickname) => {
     addMessage(`${nickname} left.`);
 });
 socket.on("new_message",(msg) => {
