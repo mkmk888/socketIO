@@ -9,10 +9,6 @@ room.hidden = true;
 
 let roomName;
 let roomCount = 0;
-let myStream;
-let mute = false;
-let cameraOff = false;
-let myPeerConnection;
 
 async function getCameras(){
     try {
@@ -112,7 +108,9 @@ socket.on("new_message",(msg) => {
     addMessage(msg);
 });
 socket.on("room_change",(count,rooms)=>{
-    roomCount = count;
+    if(count>0){
+        roomCount = count;
+    }
     const roomList = welcome.querySelector("ul");
     roomList.innerHTML = "";
     rooms.forEach((room) => {

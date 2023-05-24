@@ -58,7 +58,7 @@ function countRoom(roomName) {
 
 io.on("connection", (socket) => {
     socket["nickname"] = "Anonymous";
-    io.sockets.emit("room_change",0, publicRooms());
+    io.sockets.emit("room_change",-1, publicRooms());
     // 연결시 룸 리스트 새로고침 - 실시간 리스트 새로고침
     socket.on("enter_room", (roomName) => {
         socket.join(roomName);
@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
         socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname));
     })
     socket.on("disconnect", () => {
-        io.sockets.emit("room_change", publicRooms());
+        io.sockets.emit("room_change", -1, publicRooms());
     })
     socket.on("new_message", (msg, room, done) => {
         socket.to(room).emit("new_message", `${socket.nickname} : ${msg}`);
