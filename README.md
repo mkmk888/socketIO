@@ -4,7 +4,7 @@
 
 # 개발환경
 - Node.JS
-  - express, babel(호환성), nodemon(개발 중 서버 자동 재시작), pug
+  - express, babel, nodemon, pug
 - Socket.IO
 
 
