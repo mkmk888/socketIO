@@ -6,46 +6,8 @@ const nicknameForm = document.querySelector("#nickname");
 
 room.hidden = true;
 
-
 let roomName;
 let roomCount = 0;
-
-async function getCameras(){
-    try {
-        const devices = navigator.mediaDevices.enumerateDevices();
-        const cameras = (await devices).filter((device) => device.kind === "videoinput");
-        cameras.forEach((camera) => {
-            const option = document.createElement("option");
-            option.value = camera.deviceId;
-            option.innerText = camera.label;
-            cameraSelect.appendChild(option);
-        })
-    } catch(e) {
-        console.log(e);
-    }
-}
-
-async function getMedia(deviceId){
-    const initialConstraints = {
-        audio : true,
-        viedo : {facingMode : "user"},
-    };
-    const cameraConstraints = {
-        audio : true,
-        video : {deviceId: {exact : deviceId}},
-    };
-    try {
-        myStream = await navigator.mediaDevices.getUserMedia(
-            deviceId ? cameraConstraints : initialConstraints
-        );
-        myFace.srcObject = myStream;
-        if(!deviceId){
-            await getCameras();
-        }
-    } catch(e){
-        console.log(e);
-    }
-}
 
 function addMessage(message){
     const ul = room.querySelector("ul");
@@ -96,21 +58,24 @@ async function handleRoomSubmit(event){
 roomnameForm.addEventListener("submit",handleRoomSubmit);
 nicknameForm.addEventListener("submit",handleNicknameSubmit);
 
-socket.on("welcome",async (nickname) => {
-    addMessage(`${nickname} joined!`);
+socket.on("welcome",async (nickname,count) => {
+    if(roomCount === 0){
+        addMessage(`${nickname} (You) joined!`);
+    } else {
+        addMessage(`${nickname} joined!`);
+    }
+    roomCount = count;
+    changeRoomTitle();
 });
-socket.on("bye",(nickname) => {
+socket.on("bye",(nickname,count) => {
     addMessage(`${nickname} left.`);
     roomCount -= 1;
-    changeRoomTitle()
+    changeRoomTitle();
 });
 socket.on("new_message",(msg) => {
     addMessage(msg);
 });
-socket.on("room_change",(count,rooms)=>{
-    if(count>0){
-        roomCount = count;
-    }
+socket.on("room_change",(rooms)=>{
     const roomList = welcome.querySelector("ul");
     roomList.innerHTML = "";
     rooms.forEach((room) => {
@@ -118,5 +83,4 @@ socket.on("room_change",(count,rooms)=>{
         li.innerText=room;
         roomList.appendChild(li);
     })
-    changeRoomTitle()
 });
